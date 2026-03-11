@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Övertid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c10;
+  --card: #13161e;
+  --card2: #1a1e28;
+  --card3: #20253200;
+  --accent: #d4f53c;
+  --accent2: #3cf5c0;
+  --accent3: #f5a23c;
+  --accent4: #f53c7a;
+  --text: #eef0f8;
+  --muted: #5a6278;
+  --border: #232838;
+  --radius: 18px;
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overscroll-behavior: none; }
+body {
+  font-family: var(--font-display);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* SAFE AREAS */
+.safe-top { height: env(safe-area-inset-top, 44px); background: var(--bg); }
+
+/* HEADER */
+header {
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: rgba(10,12,16,0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+}
+header h1 { font-size: 21px; font-weight: 800; letter-spacing: -0.5px; }
+header h1 span { color: var(--accent); }
+.header-right { display: flex; gap: 8px; align-items: center; }
+.total-chip {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 5px 11px;
+  border-radius: 100px;
+}
+.remind-btn {
+  background: none; border: none;
+  font-size: 20px; cursor: pointer;
+  padding: 2px; line-height: 1;
+}
+
+/* NAV */
+.bottom-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(10,12,16,0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid var(--border);
+  padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+  display: flex; justify-content: space-around; z-index: 200;
+}
+.nav-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: none; border: none; color: var(--muted);
+  font-family: var(--font-display); font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  cursor: pointer; padding: 5px 18px; border-radius: 12px;
+  transition: color 0.18s;
+}
+.nav-btn .ico { font-size: 21px; }
+.nav-btn.active { color: var(--accent); }
+
+/* MAIN */
+main { padding: 18px 15px 110px; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* SECTION LABEL */
+.sec-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.8px; color: var(--muted); margin-bottom: 10px; padding-left: 2px;
+}
+
+/* CARDS */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 14px;
+}
+.card-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.4px; color: var(--muted); margin-bottom: 14px;
+}
+
+/* FORM */
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 11px; }
+.field-row { display: flex; gap: 9px; }
+.field-row .field { flex: 1; margin-bottom: 0; }
+label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
+
+input[type="date"], input[type="time"], input[type="number"],
+select, textarea {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  padding: 11px 13px;
+  width: 100%;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.18s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.3); }
+textarea { resize: none; height: 56px; font-size: 14px; line-height: 1.5; }
+select option { background: #1a1e28; }
+
+/* MODE TOGGLE */
+.seg {
+  display: flex; background: var(--card2); border-radius: 11px;
+  padding: 3px; border: 1px solid var(--border); margin-bottom: 12px;
+}
+.seg-btn {
+  flex: 1; padding: 9px 6px; border: none; background: transparent;
+  color: var(--muted); font-family: var(--font-display); font-size: 12px;
+  font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.18s;
+}
+.seg-btn.active { background: var(--accent); color: #0a0c10; }
+
+.mode-section { display: none; }
+.mode-section.visible { display: block; }
+
+.time-preview {
+  font-family: var(--font-mono); font-size: 12px; color: var(--accent2);
+  text-align: center; padding: 3px 0 8px;
+}
+
+/* CATEGORIES */
+.cat-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-bottom: 12px;
+}
+.cat-pill {
+  padding: 9px 6px; border: 1.5px solid var(--border);
+  border-radius: 11px; text-align: center; cursor: pointer;
+  font-size: 11px; font-weight: 700; transition: all 0.16s;
+  background: var(--card2);
+}
+.cat-pill.sel { border-color: currentColor; }
+
+/* SUBMIT BTN */
+.submit-btn {
+  width: 100%; background: var(--accent); color: #0a0c10;
+  border: none; border-radius: 13px; padding: 15px;
+  font-family: var(--font-display); font-size: 15px; font-weight: 800;
+  cursor: pointer; letter-spacing: 0.3px;
+  transition: transform 0.1s, opacity 0.18s;
+}
+.submit-btn:active { transform: scale(0.97); opacity: 0.8; }
+
+/* DASHBOARD */
+.kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 14px; }
+.kpi-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 15px;
+}
+.kpi-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 5px; }
+.kpi-val { font-family: var(--font-mono); font-size: 22px; font-weight: 500; }
+.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* SALARY CARD */
+.salary-card {
+  background: linear-gradient(135deg, #0e1f0a, #0a1a14);
+  border: 1px solid rgba(212,245,60,0.25);
+  border-radius: var(--radius); padding: 18px; margin-bottom: 14px;
+}
+.salary-setup {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.salary-setup p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.salary-input-row { display: flex; gap: 8px; align-items: center; }
+.salary-input-row input {
+  flex: 1; background: var(--card2); border: 1px solid var(--border);
+  border-radius: 11px; color: var(--text); font-family: var(--font-mono);
+  font-size: 16px; padding: 10px 13px; outline: none;
+  -webkit-appearance: none; appearance: none; transition: border-color 0.18s;
+}
+.salary-input-row input:focus { border-color: var(--accent); }
+.salary-save-btn {
+  background: var(--accent); color: #0a0c10; border: none;
+  border-radius: 11px; padding: 10px 16px; font-family: var(--font-display);
+  font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap;
+  transition: opacity 0.18s;
+}
+.salary-save-btn:active { opacity: 0.7; }
+.salary-display { display: flex; flex-direction: column; gap: 12px; }
+.salary-top-row { display: flex; align-items: center; justify-content: space-between; }
+.salary-amount { font-family: var(--font-mono); font-size: 26px; font-weight: 500; color: var(--accent); }
+.salary-edit-btn {
+  background: var(--card2); border: 1px solid var(--border); color: var(--muted);
+  border-radius: 9px; padding: 6px 12px; font-family: var(--font-display);
+  font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.18s;
+}
+.salary-edit-btn:active { color: var(--text); }
+.salary-rate { font-size: 12px; color: var(--muted); }
+.salary-rate span { color: var(--accent2); font-family: var(--font-mono); }
+.earnings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.earnings-item {
+  background: rgba(0,0,0,0.25); border-radius: 11px; padding: 11px 13px;
+  border: 1px solid rgba(212,245,60,0.1);
+}
+.earnings-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; }
+.earnings-val { font-family: var(--font-mono); font-size: 17px; font-weight: 500; color: var(--accent); }
+.earnings-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* BAR CHART */
+.bar-chart { display: flex; align-items: flex-end; gap: 5px; height: 80px; padding: 0 2px; }
+.bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; height: 100%; justify-content: flex-end; }
+.bar-inner { width: 100%; border-radius: 5px 5px 0 0; min-height: 3px; transition: height 0.5s cubic-bezier(.22,1,.36,1); }
+.bar-month { font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 0.5px; }
+.bar-val { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+
+/* DONUT */
+.donut-wrap { position: relative; width: 130px; height: 130px; flex-shrink: 0; }
+.donut-wrap svg { transform: rotate(-90deg); }
+.donut-center {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  text-align: center;
+}
+.donut-center .big { font-family: var(--font-mono); font-size: 20px; font-weight: 500; }
+.donut-center .small { font-size: 10px; color: var(--muted); }
+.donut-row { display: flex; align-items: center; gap: 14px; }
+.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.legend-item { display: flex; align-items: center; gap: 8px; }
+.legend-dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+.legend-name { font-size: 12px; font-weight: 600; flex: 1; }
+.legend-val { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+
+/* MONTH NAV */
+.month-nav {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+}
+.month-nav button {
+  background: var(--card); border: 1px solid var(--border); color: var(--text);
+  border-radius: 10px; width: 36px; height: 36px; font-size: 17px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.month-nav button:active { opacity: 0.55; }
+.month-name { font-size: 17px; font-weight: 800; }
+
+/* SUMMARY BAR */
+.summary-bar {
+  background: linear-gradient(120deg, #172d08, #0c1f1a);
+  border: 1px solid rgba(212,245,60,0.18);
+  border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px;
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+}
+.sum-item { text-align: center; }
+.sum-val { font-family: var(--font-mono); font-size: 16px; color: var(--accent); font-weight: 500; }
+.sum-label { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 3px; }
+
+/* ENTRY CARDS */
+.entries-list { display: flex; flex-direction: column; gap: 7px; }
+.entry-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 13px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  animation: fadeUp 0.22s ease;
+  position: relative; overflow: hidden;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.entry-left-bar {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 3px 0 0 3px;
+}
+.entry-date-block { text-align: center; min-width: 36px; }
+.entry-day { font-family: var(--font-mono); font-size: 20px; font-weight: 500; line-height: 1; }
+.entry-wd { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-top: 2px; }
+.entry-info { flex: 1; min-width: 0; }
+.entry-top { display: flex; align-items: center; gap: 7px; }
+.entry-time { font-family: var(--font-mono); font-size: 13px; }
+.entry-cat-badge {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; padding: 2px 7px; border-radius: 100px;
+  background: rgba(255,255,255,0.07); white-space: nowrap;
+}
+.entry-note { font-size: 11px; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+.entry-hrs { font-family: var(--font-mono); font-size: 16px; font-weight: 500; white-space: nowrap; }
+.del-btn { background: none; border: none; color: var(--muted); font-size: 19px; cursor: pointer; padding: 4px; transition: color 0.18s; line-height: 1; }
+.del-btn:active { color: #f53c7a; }
+
+.empty-state { text-align: center; padding: 42px 16px; color: var(--muted); }
+.empty-state .ico { font-size: 38px; margin-bottom: 10px; }
+.empty-state p { font-size: 13px; }
+
+/* FLEX REMINDER BANNER */
+.reminder-banner {
+  background: linear-gradient(120deg, #2a1a00, #1a0d00);
+  border: 1px solid rgba(245,162,60,0.35);
+  border-radius: var(--radius); padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+}
+.reminder-banner .ico { font-size: 26px; flex-shrink: 0; }
+.reminder-banner .txt h3 { font-size: 13px; font-weight: 800; color: var(--accent3); margin-bottom: 2px; }
+.reminder-banner .txt p { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.reminder-banner .act-btn {
+  background: var(--accent3); color: #0a0c10; border: none;
+  border-radius: 9px; padding: 7px 12px; font-family: var(--font-display);
+  font-size: 11px; font-weight: 800; cursor: pointer; flex-shrink: 0;
+}
+
+/* FLEX CHECKLIST */
+.flex-list { display: flex; flex-direction: column; gap: 7px; }
+.flex-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 13px; padding: 13px 15px;
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+  transition: opacity 0.2s;
+}
+.flex-item.done { opacity: 0.5; }
+.flex-check {
+  width: 22px; height: 22px; border-radius: 7px;
+  border: 2px solid var(--border); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; transition: all 0.18s;
+}
+.flex-item.done .flex-check { background: var(--accent2); border-color: var(--accent2); }
+.flex-item-info { flex: 1; }
+.flex-item-month { font-size: 14px; font-weight: 700; }
+.flex-item-detail { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: var(--font-mono); }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 44px) + 58px);
+  left: 50%; transform: translateX(-50%) translateY(-16px);
+  background: var(--accent); color: #0a0c10;
+  padding: 9px 18px; border-radius: 100px;
+  font-size: 12px; font-weight: 800;
+  opacity: 0; transition: all 0.25s;
+  z-index: 999; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* NOTIFICATION MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  z-index: 500; display: none; align-items: flex-end;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.modal-overlay.open { display: flex; }
+.modal-sheet {
+  background: var(--card); border-radius: 24px 24px 0 0;
+  width: 100%; padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  animation: sheetUp 0.28s cubic-bezier(.22,1,.36,1);
+}
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.modal-sheet h2 { font-size: 17px; font-weight: 800; margin-bottom: 6px; }
+.modal-sheet p { font-size: 13px; color: var(--muted); margin-bottom: 18px; line-height: 1.5; }
+.modal-btn {
+  width: 100%; padding: 14px; border: none; border-radius: 13px;
+  font-family: var(--font-display); font-size: 15px; font-weight: 800;
+  cursor: pointer; margin-bottom: 8px;
+}
+.modal-btn.primary { background: var(--accent); color: #0a0c10; }
+.modal-btn.secondary { background: var(--card2); color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="safe-top"></div>
+
+<header>
+  <h1>Över<span>tid</span></h1>
+  <div class="header-right">
+    <div class="total-chip" id="totalChip">0 tim</div>
+    <button class="remind-btn" onclick="openReminderModal()" title="Påminnelse">🔔</button>
+  </div>
+</header>
+
+<main>
+  <!-- ===== TAB: LÄGG TILL ===== -->
+  <div class="tab-content active" id="tab-add">
+    <div class="card">
+      <div class="card-title">Ny övertid</div>
+
+      <div class="field">
+        <label>Datum</label>
+        <input type="date" id="inputDate">
+      </div>
+
+      <div class="seg" id="modeSeg">
+        <button class="seg-btn active" onclick="setMode('klockslag')">Klockslag</button>
+        <button class="seg-btn" onclick="setMode('timmar')">Timmar</button>
+      </div>
+
+      <div class="mode-section visible" id="mode-klockslag">
+        <div class="field-row">
+          <div class="field"><label>Från</label><input type="time" id="timeFrom" value="17:00"></div>
+          <div class="field"><label>Till</label><input type="time" id="timeTo" value="18:00"></div>
+        </div>
+        <div class="time-preview" id="timePreview"></div>
+      </div>
+
+      <div class="mode-section" id="mode-timmar">
+        <div class="field">
+          <label>Antal timmar</label>
+          <input type="number" id="inputHours" min="0.25" max="24" step="0.25" placeholder="1.5">
+        </div>
+      </div>
+
+      <!-- CATEGORIES -->
+      <div class="field">
+        <label>Kategori</label>
+        <div class="cat-grid" id="catGrid"></div>
+      </div>
+
+      <div class="field">
+        <label>Anteckning (valfritt)</label>
+        <textarea id="inputNote" placeholder="Projekt, möte…"></textarea>
+      </div>
+
+      <button class="submit-btn" onclick="addEntry()">+ Lägg till</button>
+    </div>
+  </div>
+
+  <!-- ===== TAB: ÖVERSIKT ===== -->
+  <div class="tab-content" id="tab-dash">
+    <!-- Flex reminder banner (shown last week of month) -->
+    <div class="reminder-banner" id="flexBanner" style="display:none">
+      <div class="ico">⏰</div>
+      <div class="txt">
+        <h3>Kom ihåg flexen!</h3>
+        <p>Månaden slutar snart. Stäm av dina timmar i flexpotten.</p>
+      </div>
+      <button class="act-btn" onclick="switchTab('flex')">Kolla</button>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <!-- 6-månadersdiagram -->
+    <div class="card">
+      <div class="card-title">Senaste 6 månaderna</div>
+      <div class="bar-chart" id="barChart"></div>
+    </div>
+
+    <!-- Kategorifördelning -->
+    <div class="card">
+      <div class="card-title">Fördelning per kategori</div>
+      <div class="donut-row" id="donutRow">
+        <div class="donut-wrap"><svg width="130" height="130" viewBox="0 0 130 130" id="donutSvg"></svg>
+          <div class="donut-center"><div class="big" id="donutBig">—</div><div class="small">övertid</div></div>
+        </div>
+        <div class="donut-legend" id="donutLegend"></div>
+      </div>
+    </div>
+
+    <!-- Lön-kort -->
+    <div id="salarySection"></div>
+  </div>
+
+  <!-- ===== TAB: MÅNAD ===== -->
+  <div class="tab-content" id="tab-month">
+    <div class="month-nav">
+      <button onclick="changeMonth(-1)">‹</button>
+      <span class="month-name" id="monthLabel"></span>
+      <button onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="summary-bar" id="summaryBar"></div>
+    <div class="entries-list" id="monthEntries"></div>
+  </div>
+
+  <!-- ===== TAB: FLEX ===== -->
+  <div class="tab-content" id="tab-flex">
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title">Flexklarmarkering</div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:0">
+        Markera månader där du har stämt av och fört över övertid till flexsaldo.
+      </p>
+    </div>
+    <div class="flex-list" id="flexList"></div>
+  </div>
+</main>
+
+<div class="bottom-bar">
+  <button class="nav-btn active" id="nav-add" onclick="switchTab('add')"><span class="ico">＋</span>Lägg till</button>
+  <button class="nav-btn" id="nav-dash" onclick="switchTab('dash')"><span class="ico">📈</span>Statistik</button>
+  <button class="nav-btn" id="nav-month" onclick="switchTab('month')"><span class="ico">📅</span>Månad</button>
+  <button class="nav-btn" id="nav-flex" onclick="switchTab('flex')"><span class="ico">✅</span>Flex</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- REMINDER MODAL -->
+<div class="modal-overlay" id="reminderModal" onclick="closeReminderModal(event)">
+  <div class="modal-sheet">
+    <h2>🔔 Flexpåminnelse</h2>
+    <p>Aktivera påminnelse på sista vardagen varje månad – då visas en banner som påminner dig att gå in i flexpotten och klarmarkera.</p>
+    <div style="background:var(--card2);border-radius:13px;padding:14px;margin-bottom:16px;border:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:14px;font-weight:700">Påminnelse aktiv</span>
+        <label style="position:relative;display:inline-block;width:48px;height:27px;text-transform:none;letter-spacing:0">
+          <input type="checkbox" id="reminderToggle" onchange="toggleReminder()" style="opacity:0;width:0;height:0">
+          <span id="toggleTrack" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:100px;transition:0.2s"></span>
+          <span id="toggleThumb" style="position:absolute;content:'';height:21px;width:21px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.2s"></span>
+        </label>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px;margin-bottom:0">Visas 5 sista dagarna i varje månad</p>
+    </div>
+    <button class="modal-btn secondary" onclick="closeReminderModal()">Stäng</button>
+  </div>
+</div>
+
+<script>
+// ===== CONSTANTS =====
+const MONTHS = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+const WEEKDAYS = ['Sön','Mån','Tis','Ons','Tor','Fre','Lör'];
+
+const CATEGORIES = [
+  { id: 'overtid',  label: 'Övertid',  color: '#d4f53c', emoji: '⏱' },
+  { id: 'resa',     label: 'Resa',     color: '#f5a23c', emoji: '✈️' },
+];
+
+// ===== STATE =====
+let entries       = JSON.parse(localStorage.getItem('ot_entries')  || '[]');
+let flexDone      = JSON.parse(localStorage.getItem('ot_flex')     || '{}');
+let reminder      = JSON.parse(localStorage.getItem('ot_reminder') || 'false');
+let monthlySalary = JSON.parse(localStorage.getItem('ot_salary')   || 'null');
+let selectedCat = 'overtid';
+let currentMode = 'klockslag';
+let viewMonth, viewYear;
+
+// ===== INIT =====
+function init() {
+  const now = new Date();
+  viewMonth = now.getMonth(); viewYear = now.getFullYear();
+  document.getElementById('inputDate').value = fmtDate(now);
+  buildCatGrid();
+  updateTimePreview();
+  document.getElementById('timeFrom').addEventListener('input', updateTimePreview);
+  document.getElementById('timeTo').addEventListener('input', updateTimePreview);
+  updateAll();
+  checkReminderBanner();
+  updateReminderUI();
+}
+
+function updateAll() {
+  updateTotalChip();
+  renderDash();
+  renderMonth();
+  renderFlex();
+}
+
+// ===== HELPERS =====
+function fmtDate(d) {
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+function pad(n) { return String(n).padStart(2,'0'); }
+
+function fmtH(h) {
+  const wh = Math.floor(h), wm = Math.round((h-wh)*60);
+  if (wm===0) return wh+'h';
+  if (wh===0) return wm+'min';
+  return wh+'h '+wm+'m';
+}
+
+function fmtKr(amount) {
+  if (amount >= 1000) return Math.round(amount).toLocaleString('sv-SE') + ' kr';
+  return Math.round(amount) + ' kr';
+}
+
+function calcEarnings(overtidHours) {
+  if (!monthlySalary || monthlySalary <= 0) return null;
+  return (monthlySalary / 77) * overtidHours;
+}
+
+function timeDiffH(from, to) {
+  const [fh,fm] = from.split(':').map(Number);
+  const [th,tm] = to.split(':').map(Number);
+  return ((th*60+tm) - (fh*60+fm)) / 60;
+}
+
+function getCat(id) { return CATEGORIES.find(c=>c.id===id) || CATEGORIES[0]; }
+
+function save() {
+  localStorage.setItem('ot_entries', JSON.stringify(entries));
+  localStorage.setItem('ot_flex', JSON.stringify(flexDone));
+  localStorage.setItem('ot_salary', JSON.stringify(monthlySalary));
+}
+
+// ===== MODE =====
+function setMode(m) {
+  currentMode = m;
+  document.querySelectorAll('.seg-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&m==='klockslag')||(i===1&&m==='timmar')));
+  document.getElementById('mode-klockslag').classList.toggle('visible', m==='klockslag');
+  document.getElementById('mode-timmar').classList.toggle('visible', m==='timmar');
+}
+
+function updateTimePreview() {
+  const from = document.getElementById('timeFrom').value;
+  const to   = document.getElementById('timeTo').value;
+  if (!from||!to) return;
+  const h = timeDiffH(from, to);
+  document.getElementById('timePreview').textContent = h>0 ? '= '+fmtH(h) : '⚠ Kontrollera tider';
+}
+
+// ===== CATEGORIES =====
+function buildCatGrid() {
+  const grid = document.getElementById('catGrid');
+  grid.innerHTML = CATEGORIES.map(c=>`
+    <div class="cat-pill${c.id===selectedCat?' sel':''}" id="cat_${c.id}"
+      style="color:${c.color};${c.id===selectedCat?'border-color:'+c.color:'border-color:var(--border)'}"
+      onclick="selectCat('${c.id}')">
+      ${c.emoji}<br>${c.label}
+    </div>
+  `).join('');
+}
+function selectCat(id) {
+  selectedCat = id;
+  buildCatGrid();
+}
+
+// ===== ADD ENTRY =====
+function addEntry() {
+  const date = document.getElementById('inputDate').value;
+  if (!date) { toast('Välj ett datum!'); return; }
+  let hours=0, timeStr='';
+  if (currentMode==='klockslag') {
+    const from=document.getElementById('timeFrom').value, to=document.getElementById('timeTo').value;
+    if(!from||!to){toast('Ange klockslag!');return;}
+    hours = timeDiffH(from,to);
+    if(hours<=0){toast('Sluttid måste vara efter starttid!');return;}
+    timeStr = from+'–'+to;
+  } else {
+    hours = parseFloat(document.getElementById('inputHours').value);
+    if(!hours||hours<=0){toast('Ange antal timmar!');return;}
+    timeStr = fmtH(hours);
+  }
+  const note = document.getElementById('inputNote').value.trim();
+  entries.push({ id: Date.now(), date, hours, timeStr, note, cat: selectedCat });
+  entries.sort((a,b)=>a.date.localeCompare(b.date));
+  save();
+  document.getElementById('inputNote').value = '';
+  if(currentMode==='timmar') document.getElementById('inputHours').value='';
+  updateAll();
+  toast('✓ Sparad!');
+  const d = new Date(date+'T12:00:00');
+  viewMonth=d.getMonth(); viewYear=d.getFullYear();
+  setTimeout(()=>switchTab('month'),500);
+}
+
+// ===== DELETE =====
+function deleteEntry(id) {
+  if(!confirm('Ta bort?')) return;
+  entries = entries.filter(e=>e.id!==id);
+  save(); updateAll(); toast('Borttagen');
+}
+
+// ===== TOTAL CHIP =====
+function updateTotalChip() {
+  const total = entries.reduce((s,e)=>s+e.hours,0);
+  document.getElementById('totalChip').textContent = fmtH(total);
+}
+
+// ===== ENTRY CARD HTML =====
+function entryCardHTML(e) {
+  const d = new Date(e.date+'T12:00:00');
+  const cat = getCat(e.cat||'ovrigt');
+  return `
+    <div class="entry-card">
+      <div class="entry-left-bar" style="background:${cat.color}"></div>
+      <div class="entry-date-block">
+        <div class="entry-day" style="color:${cat.color}">${pad(d.getDate())}</div>
+        <div class="entry-wd">${WEEKDAYS[d.getDay()]}</div>
+      </div>
+      <div class="entry-info">
+        <div class="entry-top">
+          <span class="entry-time">${e.timeStr}</span>
+          <span class="entry-cat-badge" style="color:${cat.color}">${cat.label}</span>
+        </div>
+        ${e.note?`<div class="entry-note">${e.note}</div>`:''}
+      </div>
+      <div class="entry-hrs" style="color:${cat.color}">${fmtH(e.hours)}</div>
+      <button class="del-btn" onclick="deleteEntry(${e.id})">×</button>
+    </div>`;
+}
+
+// ===== MONTH VIEW =====
+function changeMonth(d) {
+  viewMonth+=d;
+  if(viewMonth>11){viewMonth=0;viewYear++;}
+  if(viewMonth<0){viewMonth=11;viewYear--;}
+  renderMonth();
+}
+function renderMonth() {
+  document.getElementById('monthLabel').textContent = MONTHS[viewMonth]+' '+viewYear;
+  const me = entries.filter(e=>{
+    const d=new Date(e.date+'T12:00:00');
+    return d.getMonth()===viewMonth && d.getFullYear()===viewYear;
+  });
+  const overtidH = me.filter(e=>e.cat!=='resa').reduce((s,e)=>s+e.hours,0);
+  const resaH    = me.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
+  const totalH   = overtidH + resaH;
+  const days = me.length;
+  const earnings = calcEarnings(overtidH);
+  document.getElementById('summaryBar').innerHTML = `
+    <div class="sum-item"><div class="sum-val" style="color:var(--accent)">${fmtH(overtidH)}</div><div class="sum-label">Övertid</div></div>
+    <div class="sum-item"><div class="sum-val" style="color:var(--accent3)">${fmtH(resaH)}</div><div class="sum-label">Resa</div></div>
+    <div class="sum-item"><div class="sum-val" style="color:${earnings!==null?'var(--accent2)':'var(--muted)'}">${earnings!==null?fmtKr(earnings):days+' d'}</div><div class="sum-label">${earnings!==null?'Intjänat':'Dagar'}</div></div>
+  `;
+  const container = document.getElementById('monthEntries');
+  if(me.length===0) {
+    container.innerHTML=`<div class="empty-state"><div class="ico">🌙</div><p>Inga timmar denna månad</p></div>`;
+    return;
+  }
+  container.innerHTML = me.slice().reverse().map(entryCardHTML).join('');
+}
+
+// ===== DASHBOARD =====
+function renderDash() {
+  renderKPI();
+  renderSalarySection();
+  renderBarChart();
+  renderDonut();
+}
+
+function renderSalarySection() {
+  const el = document.getElementById('salarySection');
+  const now = new Date();
+
+  if (!monthlySalary) {
+    el.innerHTML = `
+      <div class="salary-card">
+        <div class="card-title">💰 Lägg till lön</div>
+        <div class="salary-setup">
+          <p>Ange din totala månadslön så räknas din övertidsersättning ut automatiskt.<br><span style="color:var(--accent2);font-size:11px">Formel: lön ÷ 77 × timmar</span></p>
+          <div class="salary-input-row">
+            <input type="number" id="salaryInput" placeholder="ex. 35000" min="1">
+            <button class="salary-save-btn" onclick="saveSalary()">Spara</button>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const ratePerH = monthlySalary / 77;
+
+  // This month overtime earnings
+  const thisMonthOT = entries.filter(e=>{
+    const d=new Date(e.date+'T12:00:00');
+    return e.cat!=='resa' && d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  }).reduce((s,e)=>s+e.hours,0);
+
+  // This year overtime earnings
+  const thisYearOT = entries.filter(e=>{
+    const d=new Date(e.date+'T12:00:00');
+    return e.cat!=='resa' && d.getFullYear()===now.getFullYear();
+  }).reduce((s,e)=>s+e.hours,0);
+
+  // All time overtime earnings
+  const allOT = entries.filter(e=>e.cat!=='resa').reduce((s,e)=>s+e.hours,0);
+
+  const monthEarnings = ratePerH * thisMonthOT;
+  const yearEarnings  = ratePerH * thisYearOT;
+  const totalEarnings = ratePerH * allOT;
+
+  el.innerHTML = `
+    <div class="salary-card">
+      <div class="card-title">💰 Övertidsersättning</div>
+      <div class="salary-display" id="salaryDisplay">
+        <div class="salary-top-row">
+          <div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:4px">Månadslön</div>
+            <div class="salary-amount">${fmtKr(monthlySalary)}</div>
+            <div class="salary-rate">Övertidstaxa: <span>${fmtKr(ratePerH)}/h</span></div>
+          </div>
+          <button class="salary-edit-btn" onclick="editSalary()">✏️ Ändra</button>
+        </div>
+        <div class="earnings-grid">
+          <div class="earnings-item">
+            <div class="earnings-label">Denna månad</div>
+            <div class="earnings-val">${fmtKr(monthEarnings)}</div>
+            <div class="earnings-sub">${fmtH(thisMonthOT)} övertid</div>
+          </div>
+          <div class="earnings-item">
+            <div class="earnings-label">I år</div>
+            <div class="earnings-val">${fmtKr(yearEarnings)}</div>
+            <div class="earnings-sub">${fmtH(thisYearOT)} övertid</div>
+          </div>
+          <div class="earnings-item" style="grid-column:1/-1;background:rgba(212,245,60,0.06);border-color:rgba(212,245,60,0.2)">
+            <div class="earnings-label">Totalt sedan start</div>
+            <div class="earnings-val" style="font-size:22px">${fmtKr(totalEarnings)}</div>
+            <div class="earnings-sub">${fmtH(allOT)} övertid totalt</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function saveSalary() {
+  const val = parseFloat(document.getElementById('salaryInput').value);
+  if (!val || val <= 0) { toast('Ange en giltig lön!'); return; }
+  monthlySalary = val;
+  save();
+  renderSalarySection();
+  toast('✓ Lön sparad!');
+}
+
+function editSalary() {
+  const el = document.getElementById('salarySection');
+  el.innerHTML = `
+    <div class="salary-card">
+      <div class="card-title">💰 Ändra lön</div>
+      <div class="salary-setup">
+        <p>Nuvarande lön: <span style="color:var(--accent);font-family:var(--font-mono)">${fmtKr(monthlySalary)}</span></p>
+        <div class="salary-input-row">
+          <input type="number" id="salaryInput" value="${monthlySalary}" min="1">
+          <button class="salary-save-btn" onclick="saveSalary()">Spara</button>
+        </div>
+        <button onclick="renderSalarySection()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;text-align:left;padding:0">Avbryt</button>
+      </div>
+    </div>`;
+}
+
+function renderKPI() {
+  const now = new Date();
+  const thisMonthEntries = entries.filter(e=>{
+    const d=new Date(e.date+'T12:00:00');
+    return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+  });
+  const thisYear = entries.filter(e=>new Date(e.date+'T12:00:00').getFullYear()===now.getFullYear());
+
+  const overtidMonth = thisMonthEntries.filter(e=>e.cat!=='resa').reduce((s,e)=>s+e.hours,0);
+  const resaMonth    = thisMonthEntries.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
+  const overtidYear  = thisYear.filter(e=>e.cat!=='resa').reduce((s,e)=>s+e.hours,0);
+  const resaYear     = thisYear.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">⏱ Övertid — månad</div><div class="kpi-val" style="color:var(--accent)">${fmtH(overtidMonth)}</div><div class="kpi-sub">${thisMonthEntries.filter(e=>e.cat!=='resa').length} tillfällen</div></div>
+    <div class="kpi-card"><div class="kpi-label">✈️ Resa — månad</div><div class="kpi-val" style="color:var(--accent3)">${fmtH(resaMonth)}</div><div class="kpi-sub">${thisMonthEntries.filter(e=>e.cat==='resa').length} tillfällen</div></div>
+    <div class="kpi-card"><div class="kpi-label">⏱ Övertid — år</div><div class="kpi-val" style="color:var(--accent)">${fmtH(overtidYear)}</div><div class="kpi-sub">${thisYear.filter(e=>e.cat!=='resa').length} tillfällen</div></div>
+    <div class="kpi-card"><div class="kpi-label">✈️ Resa — år</div><div class="kpi-val" style="color:var(--accent3)">${fmtH(resaYear)}</div><div class="kpi-sub">${thisYear.filter(e=>e.cat==='resa').length} tillfällen</div></div>
+  `;
+}
+
+function calcStreak() {
+  if(entries.length===0) return 0;
+  // weeks with at least one entry
+  const weeks = new Set(entries.map(e=>{
+    const d=new Date(e.date+'T12:00:00');
+    const jan1=new Date(d.getFullYear(),0,1);
+    return d.getFullYear()+'-'+Math.ceil((((d-jan1)/86400000)+jan1.getDay()+1)/7);
+  }));
+  return weeks.size;
+}
+
+function renderBarChart() {
+  const now = new Date();
+  const bars = [];
+  for(let i=5;i>=0;i--) {
+    let m=now.getMonth()-i, y=now.getFullYear();
+    if(m<0){m+=12;y--;}
+    const mo = entries.filter(e=>{const d=new Date(e.date+'T12:00:00');return d.getMonth()===m&&d.getFullYear()===y;});
+    const overtidH = mo.filter(e=>e.cat!=='resa').reduce((s,e)=>s+e.hours,0);
+    const resaH    = mo.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
+    bars.push({label:MONTHS_SHORT[m], overtidH, resaH, total:overtidH+resaH, current:i===0});
+  }
+  const maxH = Math.max(...bars.map(b=>b.total), 1);
+  const MAX_PX = 65;
+
+  document.getElementById('barChart').innerHTML = `
+    <div style="display:flex;flex-direction:column;width:100%;gap:0">
+      <div style="display:flex;align-items:flex-end;gap:5px;height:${MAX_PX}px;padding:0 2px;margin-bottom:4px">
+        ${bars.map(b=>{
+          const overtidPx = Math.round(b.overtidH/maxH*MAX_PX);
+          const resaPx    = Math.round(b.resaH/maxH*MAX_PX);
+          return `
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:0">
+              <div style="width:100%;display:flex;flex-direction:column;align-items:stretch;gap:1px">
+                ${resaPx>0?`<div style="height:${resaPx}px;background:var(--accent3);border-radius:${overtidPx>0?'4px 4px 0 0':'4px 4px 0 0'};min-height:3px"></div>`:''}
+                ${overtidPx>0?`<div style="height:${overtidPx}px;background:${b.current?'var(--accent)':'var(--card2)'};border:${b.current?'none':'1px solid var(--border)'};border-radius:${resaPx>0?'0 0 4px 4px':'4px 4px 0 0'};min-height:3px"></div>`:''}
+                ${overtidPx===0&&resaPx===0?`<div style="height:3px;background:var(--border);border-radius:4px 4px 0 0;opacity:0.4"></div>`:''}
+              </div>
+            </div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:5px;padding:0 2px">
+        ${bars.map(b=>`
+          <div style="flex:1;text-align:center">
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:${b.current?'var(--accent)':'var(--muted)'};letter-spacing:0.5px">${b.label}</div>
+          </div>`).join('')}
+      </div>
+      <div style="display:flex;gap:14px;margin-top:10px;padding-left:2px">
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:9px;height:9px;border-radius:3px;background:var(--accent)"></div><span style="font-size:11px;color:var(--muted)">Övertid</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:9px;height:9px;border-radius:3px;background:var(--accent3)"></div><span style="font-size:11px;color:var(--muted)">Resa</span></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderDonut() {
+  const overtidH = entries.filter(e=>e.cat!=='resa').reduce((s,e)=>s+e.hours,0);
+  const resaH    = entries.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
+  const total    = overtidH + resaH;
+
+  document.getElementById('donutBig').textContent = total>0?fmtH(overtidH):'—';
+
+  const R=50, cx=65, cy=65, circ=2*Math.PI*R;
+
+  if(total===0) {
+    document.getElementById('donutSvg').innerHTML=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--border)" stroke-width="14"/>`;
+    document.getElementById('donutLegend').innerHTML='<div style="color:var(--muted);font-size:12px">Ingen data ännu</div>';
+    return;
+  }
+
+  const overtidDash = (overtidH/total)*circ;
+  const resaDash    = (resaH/total)*circ;
+
+  let svgParts = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--border)" stroke-width="14"/>`;
+  if(overtidH>0) svgParts += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--accent)" stroke-width="14" stroke-dasharray="${overtidDash} ${circ}" stroke-dashoffset="0" stroke-linecap="butt"/>`;
+  if(resaH>0)    svgParts += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--accent3)" stroke-width="14" stroke-dasharray="${resaDash} ${circ}" stroke-dashoffset="${-overtidDash}" stroke-linecap="butt"/>`;
+
+  document.getElementById('donutSvg').innerHTML = svgParts;
+  document.getElementById('donutBig').textContent = total>0?fmtH(overtidH):'—';
+
+  document.getElementById('donutLegend').innerHTML = `
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--accent)"></div>
+      <span class="legend-name">⏱ Övertid</span>
+      <span class="legend-val">${fmtH(overtidH)}</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--accent3)"></div>
+      <span class="legend-name">✈️ Resa</span>
+      <span class="legend-val">${fmtH(resaH)}</span>
+    </div>
+    <div style="height:1px;background:var(--border);margin:4px 0"></div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--muted)"></div>
+      <span class="legend-name" style="color:var(--muted)">Totalt</span>
+      <span class="legend-val">${fmtH(total)}</span>
+    </div>
+  `;
+}
+
+// ===== FLEX VIEW =====
+function renderFlex() {
+  const now = new Date();
+  // Collect all months that have entries
+  const monthSet = new Set();
+  entries.forEach(e=>{
+    const d=new Date(e.date+'T12:00:00');
+    monthSet.add(d.getFullYear()+'-'+pad(d.getMonth()+1));
+  });
+  // Also show last 12 months even if no entries
+  for(let i=0;i<12;i++){
+    let m=now.getMonth()-i, y=now.getFullYear();
+    if(m<0){m+=12;y--;}
+    monthSet.add(y+'-'+pad(m+1));
+  }
+  const months = Array.from(monthSet).sort().reverse().slice(0,18);
+
+  const list = document.getElementById('flexList');
+  if(months.length===0){
+    list.innerHTML='<div class="empty-state"><div class="ico">✅</div><p>Inga månader att visa</p></div>';
+    return;
+  }
+  list.innerHTML = months.map(key=>{
+    const [y,m] = key.split('-').map(Number);
+    const me = entries.filter(e=>{const d=new Date(e.date+'T12:00:00');return d.getMonth()===m-1&&d.getFullYear()===y;});
+    const overtidH = me.filter(e=>e.cat!=='resa').reduce((s,e)=>s+e.hours,0);
+    const resaH    = me.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
+    const totalH   = overtidH + resaH;
+    const done = !!flexDone[key];
+    const isFuture = (y>now.getFullYear())||(y===now.getFullYear()&&m-1>now.getMonth());
+    if(isFuture) return '';
+    return `
+      <div class="flex-item${done?' done':''}" onclick="toggleFlex('${key}')">
+        <div class="flex-check">${done?'✓':''}</div>
+        <div class="flex-item-info">
+          <div class="flex-item-month">${MONTHS[m-1]} ${y}</div>
+          <div class="flex-item-detail">${overtidH>0?fmtH(overtidH)+' övertid':'0 övertid'}${resaH>0?' · '+fmtH(resaH)+' resa':''}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleFlex(key) {
+  flexDone[key] = !flexDone[key];
+  save(); renderFlex();
+  toast(flexDone[key] ? '✓ Klarmarkerad!' : 'Avmarkerad');
+}
+
+// ===== REMINDER =====
+function checkReminderBanner() {
+  if(!reminder) { document.getElementById('flexBanner').style.display='none'; return; }
+  const now = new Date();
+  const lastDay = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const daysLeft = lastDay - now.getDate();
+  document.getElementById('flexBanner').style.display = daysLeft<=4 ? 'flex' : 'none';
+}
+
+function openReminderModal() {
+  document.getElementById('reminderModal').classList.add('open');
+}
+function closeReminderModal(e) {
+  if(!e || e.target===document.getElementById('reminderModal')) {
+    document.getElementById('reminderModal').classList.remove('open');
+  }
+}
+function toggleReminder() {
+  reminder = document.getElementById('reminderToggle').checked;
+  localStorage.setItem('ot_reminder', JSON.stringify(reminder));
+  updateReminderUI();
+  checkReminderBanner();
+  toast(reminder ? '🔔 Påminnelse aktiverad' : 'Påminnelse avstängd');
+}
+function updateReminderUI() {
+  const toggle = document.getElementById('reminderToggle');
+  const track  = document.getElementById('toggleTrack');
+  const thumb  = document.getElementById('toggleThumb');
+  toggle.checked = reminder;
+  track.style.background = reminder ? 'var(--accent)' : 'var(--border)';
+  thumb.style.transform   = reminder ? 'translateX(21px)' : 'translateX(0)';
+}
+
+// ===== TABS =====
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  if(name==='dash'){renderDash();checkReminderBanner();}
+  if(name==='month') renderMonth();
+  if(name==='flex') renderFlex();
+}
+
+// ===== TOAST =====
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+init();
+</script>
+</body>
+</html>
