@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Övertid">
+<meta name="theme-color" content="#0a0c10">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%230a0c10'/><rect width='180' height='180' rx='40' fill='url(%23g)'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23d4f53c' stop-opacity='.15'/><stop offset='1' stop-color='%230a0c10' stop-opacity='0'/></linearGradient></defs><text x='90' y='115' font-size='80' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='900' fill='%23d4f53c'>⏱</text></svg>">
 <title>Övertid</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -163,7 +166,7 @@ select option { background: #1a1e28; }
 
 /* CATEGORIES */
 .cat-grid {
-  display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-bottom: 12px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 12px;
 }
 .cat-pill {
   padding: 9px 6px; border: 1.5px solid var(--border);
@@ -287,13 +290,6 @@ select option { background: #1a1e28; }
 
 /* ENTRY CARDS */
 .entries-list { display: flex; flex-direction: column; gap: 7px; }
-.entry-card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 13px; padding: 12px 14px;
-  display: flex; align-items: center; gap: 12px;
-  animation: fadeUp 0.22s ease;
-  position: relative; overflow: hidden;
-}
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
@@ -316,6 +312,37 @@ select option { background: #1a1e28; }
 .entry-hrs { font-family: var(--font-mono); font-size: 16px; font-weight: 500; white-space: nowrap; }
 .del-btn { background: none; border: none; color: var(--muted); font-size: 19px; cursor: pointer; padding: 4px; transition: color 0.18s; line-height: 1; }
 .del-btn:active { color: #f53c7a; }
+
+/* SWIPE TO DELETE */
+.swipe-wrapper {
+  position: relative; overflow: hidden; border-radius: 13px;
+}
+.swipe-delete-bg {
+  position: absolute; right: 0; top: 0; bottom: 0;
+  background: #f53c7a; display: flex; align-items: center;
+  justify-content: flex-end; padding-right: 18px;
+  border-radius: 13px; min-width: 80px;
+  font-size: 20px; transition: opacity 0.15s;
+}
+.entry-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 13px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  animation: fadeUp 0.22s ease;
+  position: relative; overflow: hidden;
+  transition: transform 0.18s cubic-bezier(.22,1,.36,1);
+  touch-action: pan-y;
+  will-change: transform;
+  z-index: 1;
+}
+
+/* BACKUP MODAL EXTRA */
+.backup-textarea {
+  width: 100%; background: var(--card2); border: 1px solid var(--border);
+  border-radius: 11px; color: var(--muted); font-family: var(--font-mono);
+  font-size: 11px; padding: 10px 12px; resize: none; height: 90px;
+  outline: none; line-height: 1.5;
+}
 
 .empty-state { text-align: center; padding: 42px 16px; color: var(--muted); }
 .empty-state .ico { font-size: 38px; margin-bottom: 10px; }
@@ -357,8 +384,30 @@ select option { background: #1a1e28; }
 .flex-item-month { font-size: 14px; font-weight: 700; }
 .flex-item-detail { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: var(--font-mono); }
 
-/* TOAST */
-.toast {
+/* UNDO TOAST */
+.toast-undo {
+  position: fixed;
+  bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+  left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--card2); color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 8px 10px 18px; border-radius: 100px;
+  font-size: 12px; font-weight: 700;
+  opacity: 0; transition: all 0.25s;
+  z-index: 998; white-space: nowrap;
+  display: flex; align-items: center; gap: 10px;
+}
+.toast-undo.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast-undo-btn {
+  background: var(--accent); color: #0a0c10; border: none;
+  border-radius: 100px; padding: 5px 13px;
+  font-family: var(--font-display); font-size: 11px; font-weight: 800;
+  cursor: pointer;
+}
+
+/* EDIT MODAL */
+.edit-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.edit-field label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
   position: fixed;
   top: calc(env(safe-area-inset-top, 44px) + 58px);
   left: 50%; transform: translateX(-50%) translateY(-16px);
@@ -404,6 +453,7 @@ select option { background: #1a1e28; }
   <h1>Över<span>tid</span></h1>
   <div class="header-right">
     <div class="total-chip" id="totalChip">0 tim</div>
+    <button class="remind-btn" onclick="openBackupModal()" title="Backup">💾</button>
     <button class="remind-btn" onclick="openReminderModal()" title="Påminnelse">🔔</button>
   </div>
 </header>
@@ -443,6 +493,13 @@ select option { background: #1a1e28; }
       <div class="field">
         <label>Kategori</label>
         <div class="cat-grid" id="catGrid"></div>
+      </div>
+
+      <!-- Resa: total restid för resan -->
+      <div class="field" id="resaTripField" style="display:none">
+        <label>Total restid för resan (timmar)</label>
+        <input type="number" id="inputTripHours" min="0.5" max="72" step="0.5" placeholder="ex. 8 eller 12">
+        <div id="resaTaxaPreview" style="font-family:var(--font-mono);font-size:12px;color:var(--accent3);padding:3px 0 0;"></div>
       </div>
 
       <div class="field">
@@ -522,6 +579,94 @@ select option { background: #1a1e28; }
 
 <div class="toast" id="toast"></div>
 
+<!-- UNDO TOAST -->
+<div class="toast-undo" id="toastUndo">
+  <span id="toastUndoMsg">Borttagen</span>
+  <button class="toast-undo-btn" onclick="undoDelete()">Ångra</button>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
+  <div class="modal-sheet">
+    <h2>✏️ Redigera post</h2>
+
+    <div class="edit-field">
+      <label>Datum</label>
+      <input type="date" id="editDate">
+    </div>
+
+    <div class="edit-field">
+      <label>Typ av tid</label>
+      <div class="seg" id="editModeSeg" style="margin-bottom:0">
+        <button class="seg-btn active" onclick="setEditMode('klockslag')">Klockslag</button>
+        <button class="seg-btn" onclick="setEditMode('timmar')">Timmar</button>
+      </div>
+    </div>
+
+    <div id="editModeKlockslag">
+      <div style="display:flex;gap:9px;margin-bottom:12px">
+        <div class="edit-field" style="flex:1;margin-bottom:0"><label>Från</label><input type="time" id="editFrom"></div>
+        <div class="edit-field" style="flex:1;margin-bottom:0"><label>Till</label><input type="time" id="editTo"></div>
+      </div>
+      <div class="time-preview" id="editTimePreview"></div>
+    </div>
+
+    <div id="editModeTimmar" style="display:none">
+      <div class="edit-field">
+        <label>Antal timmar</label>
+        <input type="number" id="editHours" min="0.25" max="24" step="0.25">
+      </div>
+    </div>
+
+    <div class="edit-field">
+      <label>Kategori</label>
+      <div class="cat-grid" id="editCatGrid"></div>
+    </div>
+
+    <!-- Resa: total restid -->
+    <div class="edit-field" id="editResaTripField" style="display:none">
+      <label>Total restid för resan (timmar)</label>
+      <input type="number" id="editTripHours" min="0.5" max="72" step="0.5" placeholder="ex. 8 eller 12">
+      <div id="editResaTaxaPreview" style="font-family:var(--font-mono);font-size:12px;color:var(--accent3);padding:3px 0 0;"></div>
+    </div>
+
+    <div class="edit-field">
+      <label>Anteckning</label>
+      <textarea id="editNote" style="resize:none;height:52px;font-size:14px"></textarea>
+    </div>
+
+    <button class="modal-btn primary" onclick="saveEdit()">Spara ändringar</button>
+    <button class="modal-btn secondary" onclick="closeEditModal()">Avbryt</button>
+  </div>
+</div>
+
+<!-- BACKUP MODAL -->
+<div class="modal-overlay" id="backupModal" onclick="closeBackupModal(event)">
+  <div class="modal-sheet">
+    <h2>💾 Backup & Återställ</h2>
+    <p>Exportera din data som text och spara den säkert. Klistra in den igen för att återställa.</p>
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:8px">Exportera</div>
+      <textarea class="backup-textarea" id="exportArea" readonly placeholder="Tryck Exportera för att generera..."></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="modal-btn primary" style="margin:0;flex:1;padding:11px" onclick="doExport()">Exportera data</button>
+        <button class="modal-btn secondary" style="margin:0;flex:1;padding:11px" onclick="copyExport()">Kopiera</button>
+      </div>
+    </div>
+
+    <div style="height:1px;background:var(--border);margin-bottom:14px"></div>
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:8px">Återställ</div>
+      <textarea class="backup-textarea" id="importArea" placeholder="Klistra in din backup-text här..."></textarea>
+      <button class="modal-btn primary" style="margin-top:8px;background:#f53c7a" onclick="doImport()">Återställ från backup</button>
+    </div>
+
+    <button class="modal-btn secondary" onclick="closeBackupModal()">Stäng</button>
+  </div>
+</div>
+
 <!-- REMINDER MODAL -->
 <div class="modal-overlay" id="reminderModal" onclick="closeReminderModal(event)">
   <div class="modal-sheet">
@@ -551,6 +696,7 @@ const WEEKDAYS = ['Sön','Mån','Tis','Ons','Tor','Fre','Lör'];
 const CATEGORIES = [
   { id: 'overtid',  label: 'Övertid',  color: '#d4f53c', emoji: '⏱' },
   { id: 'resa',     label: 'Resa',     color: '#f5a23c', emoji: '✈️' },
+  { id: 'roddag',   label: 'Röddag',   color: '#f53c7a', emoji: '🔴' },
 ];
 
 // ===== STATE =====
@@ -571,6 +717,7 @@ function init() {
   updateTimePreview();
   document.getElementById('timeFrom').addEventListener('input', updateTimePreview);
   document.getElementById('timeTo').addEventListener('input', updateTimePreview);
+  document.getElementById('inputTripHours').addEventListener('input', updateResaTaxaPreview);
   updateAll();
   checkReminderBanner();
   updateReminderUI();
@@ -604,6 +751,22 @@ function fmtKr(amount) {
 function calcEarnings(overtidHours) {
   if (!monthlySalary || monthlySalary <= 0) return null;
   return (monthlySalary / 77) * overtidHours;
+}
+
+function calcRoddagEarnings(roddagHours) {
+  if (!monthlySalary || monthlySalary <= 0) return null;
+  return (monthlySalary / 69.4) * roddagHours;
+}
+
+// Resa: ≤10h totalt → lön/144/h, >10h totalt → lön/200/h
+function calcResaEarnings(resaHours, totalTripHours) {
+  if (!monthlySalary || monthlySalary <= 0) return null;
+  const divisor = (totalTripHours > 10) ? 200 : 144;
+  return (monthlySalary / divisor) * resaHours;
+}
+
+function resaTaxa(totalTripHours) {
+  return (totalTripHours > 10) ? 200 : 144;
 }
 
 function timeDiffH(from, to) {
@@ -650,6 +813,19 @@ function buildCatGrid() {
 function selectCat(id) {
   selectedCat = id;
   buildCatGrid();
+  const resaField = document.getElementById('resaTripField');
+  resaField.style.display = id === 'resa' ? 'flex' : 'none';
+  updateResaTaxaPreview();
+}
+
+function updateResaTaxaPreview() {
+  const el = document.getElementById('resaTaxaPreview');
+  if (!el) return;
+  const tripH = parseFloat(document.getElementById('inputTripHours').value) || 0;
+  if (!tripH) { el.textContent = ''; return; }
+  const divisor = tripH > 10 ? 200 : 144;
+  const label   = tripH > 10 ? '> 10h → lön ÷ 200/h' : '≤ 10h → lön ÷ 144/h';
+  el.textContent = label + (monthlySalary ? ` = ${fmtKr(monthlySalary / divisor)}/h` : '');
 }
 
 // ===== ADD ENTRY =====
@@ -669,10 +845,12 @@ function addEntry() {
     timeStr = fmtH(hours);
   }
   const note = document.getElementById('inputNote').value.trim();
-  entries.push({ id: Date.now(), date, hours, timeStr, note, cat: selectedCat });
+  const tripHours = selectedCat === 'resa' ? (parseFloat(document.getElementById('inputTripHours').value) || 0) : 0;
+  entries.push({ id: Date.now(), date, hours, timeStr, note, cat: selectedCat, tripHours });
   entries.sort((a,b)=>a.date.localeCompare(b.date));
   save();
   document.getElementById('inputNote').value = '';
+  document.getElementById('inputTripHours').value = '';
   if(currentMode==='timmar') document.getElementById('inputHours').value='';
   updateAll();
   toast('✓ Sparad!');
@@ -697,23 +875,26 @@ function updateTotalChip() {
 // ===== ENTRY CARD HTML =====
 function entryCardHTML(e) {
   const d = new Date(e.date+'T12:00:00');
-  const cat = getCat(e.cat||'ovrigt');
+  const cat = getCat(e.cat||'overtid');
   return `
-    <div class="entry-card">
-      <div class="entry-left-bar" style="background:${cat.color}"></div>
-      <div class="entry-date-block">
-        <div class="entry-day" style="color:${cat.color}">${pad(d.getDate())}</div>
-        <div class="entry-wd">${WEEKDAYS[d.getDay()]}</div>
-      </div>
-      <div class="entry-info">
-        <div class="entry-top">
-          <span class="entry-time">${e.timeStr}</span>
-          <span class="entry-cat-badge" style="color:${cat.color}">${cat.label}</span>
+    <div class="swipe-wrapper" id="sw_${e.id}">
+      <div class="swipe-delete-bg">🗑</div>
+      <div class="entry-card" id="ec_${e.id}" data-id="${e.id}">
+        <div class="entry-left-bar" style="background:${cat.color}"></div>
+        <div class="entry-date-block">
+          <div class="entry-day" style="color:${cat.color}">${pad(d.getDate())}</div>
+          <div class="entry-wd">${WEEKDAYS[d.getDay()]}</div>
         </div>
-        ${e.note?`<div class="entry-note">${e.note}</div>`:''}
+        <div class="entry-info">
+          <div class="entry-top">
+            <span class="entry-time">${e.timeStr}</span>
+            <span class="entry-cat-badge" style="color:${cat.color}">${cat.emoji} ${cat.label}${e.cat==='resa'&&e.tripHours?` · ${e.tripHours}h resa`:''}</span>
+          </div>
+          ${e.note?`<div class="entry-note">${e.note}</div>`:''}
+        </div>
+        <div class="entry-hrs" style="color:${cat.color}">${fmtH(e.hours)}</div>
+        <button class="del-btn" onclick="openEditModal(${e.id})" style="color:var(--muted);font-size:16px">✏️</button>
       </div>
-      <div class="entry-hrs" style="color:${cat.color}">${fmtH(e.hours)}</div>
-      <button class="del-btn" onclick="deleteEntry(${e.id})">×</button>
     </div>`;
 }
 
@@ -730,15 +911,21 @@ function renderMonth() {
     const d=new Date(e.date+'T12:00:00');
     return d.getMonth()===viewMonth && d.getFullYear()===viewYear;
   });
-  const overtidH = me.filter(e=>e.cat!=='resa').reduce((s,e)=>s+e.hours,0);
+  const overtidH = me.filter(e=>e.cat==='overtid'||!e.cat).reduce((s,e)=>s+e.hours,0);
   const resaH    = me.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
-  const totalH   = overtidH + resaH;
+  const roddagH  = me.filter(e=>e.cat==='roddag').reduce((s,e)=>s+e.hours,0);
   const days = me.length;
-  const earnings = calcEarnings(overtidH);
+  const earnings        = calcEarnings(overtidH);
+  const roddagEarnings  = calcRoddagEarnings(roddagH);
+  const showEarnings    = earnings !== null || roddagEarnings !== null;
   document.getElementById('summaryBar').innerHTML = `
     <div class="sum-item"><div class="sum-val" style="color:var(--accent)">${fmtH(overtidH)}</div><div class="sum-label">Övertid</div></div>
     <div class="sum-item"><div class="sum-val" style="color:var(--accent3)">${fmtH(resaH)}</div><div class="sum-label">Resa</div></div>
-    <div class="sum-item"><div class="sum-val" style="color:${earnings!==null?'var(--accent2)':'var(--muted)'}">${earnings!==null?fmtKr(earnings):days+' d'}</div><div class="sum-label">${earnings!==null?'Intjänat':'Dagar'}</div></div>
+    <div class="sum-item"><div class="sum-val" style="color:#f53c7a">${fmtH(roddagH)}</div><div class="sum-label">Röddag</div></div>
+    ${showEarnings ? `
+      <div class="sum-item"><div class="sum-val" style="color:var(--accent2);font-size:14px">${earnings!==null?fmtKr(earnings):'—'}</div><div class="sum-label">⏱ Ersättning</div></div>
+      <div class="sum-item" style="grid-column:span 2"><div class="sum-val" style="color:#f53c7a;font-size:14px">${roddagEarnings!==null&&roddagH>0?fmtKr(roddagEarnings):'—'}</div><div class="sum-label">🔴 Röddag-ers.</div></div>
+    ` : ''}
   `;
   const container = document.getElementById('monthEntries');
   if(me.length===0) {
@@ -746,6 +933,7 @@ function renderMonth() {
     return;
   }
   container.innerHTML = me.slice().reverse().map(entryCardHTML).join('');
+  initSwipe();
 }
 
 // ===== DASHBOARD =====
@@ -775,55 +963,100 @@ function renderSalarySection() {
     return;
   }
 
-  const ratePerH = monthlySalary / 77;
+  const ratePerH        = monthlySalary / 77;
+  const roddagRatePerH  = monthlySalary / 69.4;
 
-  // This month overtime earnings
-  const thisMonthOT = entries.filter(e=>{
-    const d=new Date(e.date+'T12:00:00');
-    return e.cat!=='resa' && d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
-  }).reduce((s,e)=>s+e.hours,0);
+  // Helper: sum resa earnings per entry using their own tripHours
+  function resaEarningsSum(list) {
+    return list.filter(e=>e.cat==='resa').reduce((s,e)=>{
+      const div = (e.tripHours||0) > 10 ? 200 : 144;
+      return s + (monthlySalary / div) * e.hours;
+    }, 0);
+  }
 
-  // This year overtime earnings
-  const thisYearOT = entries.filter(e=>{
-    const d=new Date(e.date+'T12:00:00');
-    return e.cat!=='resa' && d.getFullYear()===now.getFullYear();
-  }).reduce((s,e)=>s+e.hours,0);
+  const now2 = now; // alias for filter closures
+  const monthEntries = entries.filter(e=>{ const d=new Date(e.date+'T12:00:00'); return d.getMonth()===now2.getMonth()&&d.getFullYear()===now2.getFullYear(); });
+  const yearEntries  = entries.filter(e=>new Date(e.date+'T12:00:00').getFullYear()===now2.getFullYear());
 
-  // All time overtime earnings
-  const allOT = entries.filter(e=>e.cat!=='resa').reduce((s,e)=>s+e.hours,0);
+  const thisMonthOT     = monthEntries.filter(e=>e.cat==='overtid'||!e.cat).reduce((s,e)=>s+e.hours,0);
+  const thisMonthRoddag = monthEntries.filter(e=>e.cat==='roddag').reduce((s,e)=>s+e.hours,0);
+  const thisMonthResa   = monthEntries.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
+  const thisYearOT      = yearEntries.filter(e=>e.cat==='overtid'||!e.cat).reduce((s,e)=>s+e.hours,0);
+  const thisYearRoddag  = yearEntries.filter(e=>e.cat==='roddag').reduce((s,e)=>s+e.hours,0);
+  const thisYearResa    = yearEntries.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
+  const allOT           = entries.filter(e=>e.cat==='overtid'||!e.cat).reduce((s,e)=>s+e.hours,0);
+  const allRoddag       = entries.filter(e=>e.cat==='roddag').reduce((s,e)=>s+e.hours,0);
+  const allResa         = entries.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
 
-  const monthEarnings = ratePerH * thisMonthOT;
-  const yearEarnings  = ratePerH * thisYearOT;
-  const totalEarnings = ratePerH * allOT;
+  const monthOTEarnings     = ratePerH * thisMonthOT;
+  const monthRoddagEarnings = roddagRatePerH * thisMonthRoddag;
+  const monthResaEarnings   = resaEarningsSum(monthEntries);
+  const yearOTEarnings      = ratePerH * thisYearOT;
+  const yearRoddagEarnings  = roddagRatePerH * thisYearRoddag;
+  const yearResaEarnings    = resaEarningsSum(yearEntries);
+  const totalOTEarnings     = ratePerH * allOT;
+  const totalRoddagEarnings = roddagRatePerH * allRoddag;
+  const totalResaEarnings   = resaEarningsSum(entries);
 
   el.innerHTML = `
     <div class="salary-card">
-      <div class="card-title">💰 Övertidsersättning</div>
+      <div class="card-title">💰 Ersättningsöversikt</div>
       <div class="salary-display" id="salaryDisplay">
         <div class="salary-top-row">
           <div>
             <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:4px">Månadslön</div>
             <div class="salary-amount">${fmtKr(monthlySalary)}</div>
-            <div class="salary-rate">Övertidstaxa: <span>${fmtKr(ratePerH)}/h</span></div>
+            <div class="salary-rate">
+              ⏱ <span>${fmtKr(ratePerH)}/h</span> &nbsp;·&nbsp;
+              🔴 <span style="color:#f53c7a">${fmtKr(roddagRatePerH)}/h</span> &nbsp;·&nbsp;
+              ✈️ <span style="color:var(--accent3)">${fmtKr(monthlySalary/144)}–${fmtKr(monthlySalary/200)}/h</span>
+            </div>
           </div>
           <button class="salary-edit-btn" onclick="editSalary()">✏️ Ändra</button>
         </div>
-        <div class="earnings-grid">
+
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:6px">Denna månad</div>
+        <div class="earnings-grid" style="margin-bottom:12px">
           <div class="earnings-item">
-            <div class="earnings-label">Denna månad</div>
-            <div class="earnings-val">${fmtKr(monthEarnings)}</div>
-            <div class="earnings-sub">${fmtH(thisMonthOT)} övertid</div>
+            <div class="earnings-label">⏱ Övertid</div>
+            <div class="earnings-val">${fmtKr(monthOTEarnings)}</div>
+            <div class="earnings-sub">${fmtH(thisMonthOT)}</div>
           </div>
+          <div class="earnings-item" style="border-color:rgba(245,162,60,0.25)">
+            <div class="earnings-label">✈️ Resa</div>
+            <div class="earnings-val" style="color:var(--accent3)">${fmtKr(monthResaEarnings)}</div>
+            <div class="earnings-sub">${fmtH(thisMonthResa)}</div>
+          </div>
+          <div class="earnings-item" style="border-color:rgba(245,60,122,0.25);grid-column:1/-1">
+            <div class="earnings-label">🔴 Röddag</div>
+            <div class="earnings-val" style="color:#f53c7a">${fmtKr(monthRoddagEarnings)}</div>
+            <div class="earnings-sub">${fmtH(thisMonthRoddag)}</div>
+          </div>
+        </div>
+
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:6px">I år</div>
+        <div class="earnings-grid" style="margin-bottom:12px">
           <div class="earnings-item">
-            <div class="earnings-label">I år</div>
-            <div class="earnings-val">${fmtKr(yearEarnings)}</div>
-            <div class="earnings-sub">${fmtH(thisYearOT)} övertid</div>
+            <div class="earnings-label">⏱ Övertid</div>
+            <div class="earnings-val">${fmtKr(yearOTEarnings)}</div>
+            <div class="earnings-sub">${fmtH(thisYearOT)}</div>
           </div>
-          <div class="earnings-item" style="grid-column:1/-1;background:rgba(212,245,60,0.06);border-color:rgba(212,245,60,0.2)">
-            <div class="earnings-label">Totalt sedan start</div>
-            <div class="earnings-val" style="font-size:22px">${fmtKr(totalEarnings)}</div>
-            <div class="earnings-sub">${fmtH(allOT)} övertid totalt</div>
+          <div class="earnings-item" style="border-color:rgba(245,162,60,0.25)">
+            <div class="earnings-label">✈️ Resa</div>
+            <div class="earnings-val" style="color:var(--accent3)">${fmtKr(yearResaEarnings)}</div>
+            <div class="earnings-sub">${fmtH(thisYearResa)}</div>
           </div>
+          <div class="earnings-item" style="border-color:rgba(245,60,122,0.25);grid-column:1/-1">
+            <div class="earnings-label">🔴 Röddag</div>
+            <div class="earnings-val" style="color:#f53c7a">${fmtKr(yearRoddagEarnings)}</div>
+            <div class="earnings-sub">${fmtH(thisYearRoddag)}</div>
+          </div>
+        </div>
+
+        <div class="earnings-item" style="background:rgba(212,245,60,0.06);border-color:rgba(212,245,60,0.2)">
+          <div class="earnings-label">Totalt sedan start</div>
+          <div class="earnings-val" style="font-size:22px">${fmtKr(totalOTEarnings + totalResaEarnings + totalRoddagEarnings)}</div>
+          <div class="earnings-sub">⏱ ${fmtKr(totalOTEarnings)} &nbsp;·&nbsp; ✈️ ${fmtKr(totalResaEarnings)} &nbsp;·&nbsp; 🔴 ${fmtKr(totalRoddagEarnings)}</div>
         </div>
       </div>
     </div>`;
@@ -862,16 +1095,20 @@ function renderKPI() {
   });
   const thisYear = entries.filter(e=>new Date(e.date+'T12:00:00').getFullYear()===now.getFullYear());
 
-  const overtidMonth = thisMonthEntries.filter(e=>e.cat!=='resa').reduce((s,e)=>s+e.hours,0);
+  const overtidMonth = thisMonthEntries.filter(e=>e.cat==='overtid'||(!e.cat)).reduce((s,e)=>s+e.hours,0);
   const resaMonth    = thisMonthEntries.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
-  const overtidYear  = thisYear.filter(e=>e.cat!=='resa').reduce((s,e)=>s+e.hours,0);
+  const roddagMonth  = thisMonthEntries.filter(e=>e.cat==='roddag').reduce((s,e)=>s+e.hours,0);
+  const overtidYear  = thisYear.filter(e=>e.cat==='overtid'||(!e.cat)).reduce((s,e)=>s+e.hours,0);
   const resaYear     = thisYear.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
+  const roddagYear   = thisYear.filter(e=>e.cat==='roddag').reduce((s,e)=>s+e.hours,0);
 
   document.getElementById('kpiRow').innerHTML = `
-    <div class="kpi-card"><div class="kpi-label">⏱ Övertid — månad</div><div class="kpi-val" style="color:var(--accent)">${fmtH(overtidMonth)}</div><div class="kpi-sub">${thisMonthEntries.filter(e=>e.cat!=='resa').length} tillfällen</div></div>
+    <div class="kpi-card"><div class="kpi-label">⏱ Övertid — månad</div><div class="kpi-val" style="color:var(--accent)">${fmtH(overtidMonth)}</div><div class="kpi-sub">${thisMonthEntries.filter(e=>e.cat==='overtid'||!e.cat).length} tillfällen</div></div>
     <div class="kpi-card"><div class="kpi-label">✈️ Resa — månad</div><div class="kpi-val" style="color:var(--accent3)">${fmtH(resaMonth)}</div><div class="kpi-sub">${thisMonthEntries.filter(e=>e.cat==='resa').length} tillfällen</div></div>
-    <div class="kpi-card"><div class="kpi-label">⏱ Övertid — år</div><div class="kpi-val" style="color:var(--accent)">${fmtH(overtidYear)}</div><div class="kpi-sub">${thisYear.filter(e=>e.cat!=='resa').length} tillfällen</div></div>
+    <div class="kpi-card"><div class="kpi-label">🔴 Röddag — månad</div><div class="kpi-val" style="color:#f53c7a">${fmtH(roddagMonth)}</div><div class="kpi-sub">${thisMonthEntries.filter(e=>e.cat==='roddag').length} tillfällen</div></div>
+    <div class="kpi-card"><div class="kpi-label">⏱ Övertid — år</div><div class="kpi-val" style="color:var(--accent)">${fmtH(overtidYear)}</div><div class="kpi-sub">${thisYear.filter(e=>e.cat==='overtid'||!e.cat).length} tillfällen</div></div>
     <div class="kpi-card"><div class="kpi-label">✈️ Resa — år</div><div class="kpi-val" style="color:var(--accent3)">${fmtH(resaYear)}</div><div class="kpi-sub">${thisYear.filter(e=>e.cat==='resa').length} tillfällen</div></div>
+    <div class="kpi-card"><div class="kpi-label">🔴 Röddag — år</div><div class="kpi-val" style="color:#f53c7a">${fmtH(roddagYear)}</div><div class="kpi-sub">${thisYear.filter(e=>e.cat==='roddag').length} tillfällen</div></div>
   `;
 }
 
@@ -893,9 +1130,10 @@ function renderBarChart() {
     let m=now.getMonth()-i, y=now.getFullYear();
     if(m<0){m+=12;y--;}
     const mo = entries.filter(e=>{const d=new Date(e.date+'T12:00:00');return d.getMonth()===m&&d.getFullYear()===y;});
-    const overtidH = mo.filter(e=>e.cat!=='resa').reduce((s,e)=>s+e.hours,0);
+    const overtidH = mo.filter(e=>e.cat==='overtid'||!e.cat).reduce((s,e)=>s+e.hours,0);
     const resaH    = mo.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
-    bars.push({label:MONTHS_SHORT[m], overtidH, resaH, total:overtidH+resaH, current:i===0});
+    const roddagH  = mo.filter(e=>e.cat==='roddag').reduce((s,e)=>s+e.hours,0);
+    bars.push({label:MONTHS_SHORT[m], overtidH, resaH, roddagH, total:overtidH+resaH+roddagH, current:i===0});
   }
   const maxH = Math.max(...bars.map(b=>b.total), 1);
   const MAX_PX = 65;
@@ -906,12 +1144,15 @@ function renderBarChart() {
         ${bars.map(b=>{
           const overtidPx = Math.round(b.overtidH/maxH*MAX_PX);
           const resaPx    = Math.round(b.resaH/maxH*MAX_PX);
+          const roddagPx  = Math.round(b.roddagH/maxH*MAX_PX);
+          const anyH = b.total > 0;
           return `
             <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:0">
               <div style="width:100%;display:flex;flex-direction:column;align-items:stretch;gap:1px">
-                ${resaPx>0?`<div style="height:${resaPx}px;background:var(--accent3);border-radius:${overtidPx>0?'4px 4px 0 0':'4px 4px 0 0'};min-height:3px"></div>`:''}
-                ${overtidPx>0?`<div style="height:${overtidPx}px;background:${b.current?'var(--accent)':'var(--card2)'};border:${b.current?'none':'1px solid var(--border)'};border-radius:${resaPx>0?'0 0 4px 4px':'4px 4px 0 0'};min-height:3px"></div>`:''}
-                ${overtidPx===0&&resaPx===0?`<div style="height:3px;background:var(--border);border-radius:4px 4px 0 0;opacity:0.4"></div>`:''}
+                ${roddagPx>0?`<div style="height:${roddagPx}px;background:#f53c7a;border-radius:4px 4px 0 0;min-height:3px"></div>`:''}
+                ${resaPx>0?`<div style="height:${resaPx}px;background:var(--accent3);border-radius:${roddagPx>0?'0':'4px 4px 0 0'} 0 0;min-height:3px"></div>`:''}
+                ${overtidPx>0?`<div style="height:${overtidPx}px;background:${b.current?'var(--accent)':'var(--card2)'};border:${b.current?'none':'1px solid var(--border)'};border-radius:${(resaPx>0||roddagPx>0)?'0 0 4px 4px':'4px 4px 0 0'};min-height:3px"></div>`:''}
+                ${!anyH?`<div style="height:3px;background:var(--border);border-radius:4px 4px 0 0;opacity:0.4"></div>`:''}
               </div>
             </div>`;
         }).join('')}
@@ -925,15 +1166,17 @@ function renderBarChart() {
       <div style="display:flex;gap:14px;margin-top:10px;padding-left:2px">
         <div style="display:flex;align-items:center;gap:5px"><div style="width:9px;height:9px;border-radius:3px;background:var(--accent)"></div><span style="font-size:11px;color:var(--muted)">Övertid</span></div>
         <div style="display:flex;align-items:center;gap:5px"><div style="width:9px;height:9px;border-radius:3px;background:var(--accent3)"></div><span style="font-size:11px;color:var(--muted)">Resa</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:9px;height:9px;border-radius:3px;background:#f53c7a"></div><span style="font-size:11px;color:var(--muted)">Röddag</span></div>
       </div>
     </div>
   `;
 }
 
 function renderDonut() {
-  const overtidH = entries.filter(e=>e.cat!=='resa').reduce((s,e)=>s+e.hours,0);
+  const overtidH = entries.filter(e=>e.cat==='overtid'||!e.cat).reduce((s,e)=>s+e.hours,0);
   const resaH    = entries.filter(e=>e.cat==='resa').reduce((s,e)=>s+e.hours,0);
-  const total    = overtidH + resaH;
+  const roddagH  = entries.filter(e=>e.cat==='roddag').reduce((s,e)=>s+e.hours,0);
+  const total    = overtidH + resaH + roddagH;
 
   document.getElementById('donutBig').textContent = total>0?fmtH(overtidH):'—';
 
@@ -947,13 +1190,14 @@ function renderDonut() {
 
   const overtidDash = (overtidH/total)*circ;
   const resaDash    = (resaH/total)*circ;
+  const roddagDash  = (roddagH/total)*circ;
 
   let svgParts = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--border)" stroke-width="14"/>`;
-  if(overtidH>0) svgParts += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--accent)" stroke-width="14" stroke-dasharray="${overtidDash} ${circ}" stroke-dashoffset="0" stroke-linecap="butt"/>`;
-  if(resaH>0)    svgParts += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--accent3)" stroke-width="14" stroke-dasharray="${resaDash} ${circ}" stroke-dashoffset="${-overtidDash}" stroke-linecap="butt"/>`;
+  if(overtidH>0) svgParts += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--accent)" stroke-width="14" stroke-dasharray="${overtidDash} ${circ}" stroke-dashoffset="0"/>`;
+  if(resaH>0)    svgParts += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--accent3)" stroke-width="14" stroke-dasharray="${resaDash} ${circ}" stroke-dashoffset="${-overtidDash}"/>`;
+  if(roddagH>0)  svgParts += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#f53c7a" stroke-width="14" stroke-dasharray="${roddagDash} ${circ}" stroke-dashoffset="${-(overtidDash+resaDash)}"/>`;
 
   document.getElementById('donutSvg').innerHTML = svgParts;
-  document.getElementById('donutBig').textContent = total>0?fmtH(overtidH):'—';
 
   document.getElementById('donutLegend').innerHTML = `
     <div class="legend-item">
@@ -965,6 +1209,11 @@ function renderDonut() {
       <div class="legend-dot" style="background:var(--accent3)"></div>
       <span class="legend-name">✈️ Resa</span>
       <span class="legend-val">${fmtH(resaH)}</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#f53c7a"></div>
+      <span class="legend-name">🔴 Röddag</span>
+      <span class="legend-val">${fmtH(roddagH)}</span>
     </div>
     <div style="height:1px;background:var(--border);margin:4px 0"></div>
     <div class="legend-item">
@@ -1067,7 +1316,246 @@ function switchTab(name) {
   if(name==='flex') renderFlex();
 }
 
-// ===== TOAST =====
+// ===== SWIPE TO DELETE (with undo) =====
+let undoEntry = null;
+let undoTimer = null;
+
+function initSwipe() {
+  document.querySelectorAll('.entry-card[data-id]').forEach(card => {
+    let startX = 0, curX = 0, dragging = false;
+    const id = parseInt(card.dataset.id);
+
+    card.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+      dragging = true;
+      card.style.transition = 'none';
+    }, {passive:true});
+
+    card.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      curX = e.touches[0].clientX - startX;
+      if (curX < 0) card.style.transform = `translateX(${Math.max(curX, -90)}px)`;
+    }, {passive:true});
+
+    card.addEventListener('touchend', () => {
+      dragging = false;
+      card.style.transition = '';
+      if (curX < -60) {
+        // Animate out
+        card.style.transform = 'translateX(-110%)';
+        card.style.opacity = '0';
+        // Store for undo
+        undoEntry = entries.find(e => e.id === id);
+        // Remove from list
+        entries = entries.filter(e => e.id !== id);
+        save();
+        updateTotalChip();
+        showUndoToast();
+        // Re-render after animation
+        setTimeout(() => { renderMonth(); renderDash(); renderFlex(); }, 260);
+      } else {
+        card.style.transform = '';
+      }
+      curX = 0;
+    });
+  });
+}
+
+function showUndoToast() {
+  clearTimeout(undoTimer);
+  const t = document.getElementById('toastUndo');
+  t.classList.add('show');
+  undoTimer = setTimeout(() => {
+    t.classList.remove('show');
+    undoEntry = null;
+  }, 4000);
+}
+
+function undoDelete() {
+  if (!undoEntry) return;
+  clearTimeout(undoTimer);
+  document.getElementById('toastUndo').classList.remove('show');
+  entries.push(undoEntry);
+  entries.sort((a,b) => a.date.localeCompare(b.date));
+  undoEntry = null;
+  save(); updateAll();
+  toast('↩ Återlagd!');
+}
+
+// ===== EDIT MODAL =====
+let editingId = null;
+let editMode  = 'klockslag';
+let editCat   = 'overtid';
+
+function openEditModal(id) {
+  const e = entries.find(x => x.id === id);
+  if (!e) return;
+  editingId = id;
+  editCat   = e.cat || 'overtid';
+
+  document.getElementById('editDate').value = e.date;
+  document.getElementById('editNote').value = e.note || '';
+
+  // Determine if entry was clock-based or hours-based
+  const isClockBased = e.timeStr.includes('–');
+  if (isClockBased) {
+    const [from, to] = e.timeStr.split('–');
+    document.getElementById('editFrom').value = from;
+    document.getElementById('editTo').value   = to;
+    setEditMode('klockslag');
+  } else {
+    document.getElementById('editHours').value = e.hours;
+    setEditMode('timmar');
+  }
+
+  buildEditCatGrid();
+  // Show resa trip field if needed
+  const resaF = document.getElementById('editResaTripField');
+  resaF.style.display = editCat === 'resa' ? 'flex' : 'none';
+  document.getElementById('editTripHours').value = e.tripHours || '';
+  updateEditTimePreview();
+  document.getElementById('editFrom').addEventListener('input', updateEditTimePreview);
+  document.getElementById('editTo').addEventListener('input', updateEditTimePreview);
+  document.getElementById('editTripHours').addEventListener('input', updateEditResaTaxaPreview);
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal(e) {
+  if (!e || e.target === document.getElementById('editModal')) {
+    document.getElementById('editModal').classList.remove('open');
+    editingId = null;
+  }
+}
+
+function setEditMode(m) {
+  editMode = m;
+  document.querySelectorAll('#editModeSeg .seg-btn').forEach((b,i) =>
+    b.classList.toggle('active', (i===0&&m==='klockslag')||(i===1&&m==='timmar')));
+  document.getElementById('editModeKlockslag').style.display = m==='klockslag' ? 'block' : 'none';
+  document.getElementById('editModeTimmar').style.display    = m==='timmar'    ? 'block' : 'none';
+}
+
+function updateEditTimePreview() {
+  const from = document.getElementById('editFrom').value;
+  const to   = document.getElementById('editTo').value;
+  if (!from || !to) return;
+  const h = timeDiffH(from, to);
+  document.getElementById('editTimePreview').textContent = h > 0 ? '= ' + fmtH(h) : '⚠ Kontrollera tider';
+}
+
+function buildEditCatGrid() {
+  document.getElementById('editCatGrid').innerHTML = CATEGORIES.map(c => `
+    <div class="cat-pill${c.id===editCat?' sel':''}"
+      style="color:${c.color};border-color:${c.id===editCat?c.color:'var(--border)'}"
+      onclick="selectEditCat('${c.id}')">
+      ${c.emoji}<br>${c.label}
+    </div>`).join('');
+}
+
+function selectEditCat(id) {
+  editCat = id;
+  buildEditCatGrid();
+  const f = document.getElementById('editResaTripField');
+  f.style.display = id === 'resa' ? 'flex' : 'none';
+  updateEditResaTaxaPreview();
+}
+
+function updateEditResaTaxaPreview() {
+  const el = document.getElementById('editResaTaxaPreview');
+  if (!el) return;
+  const tripH = parseFloat(document.getElementById('editTripHours').value) || 0;
+  if (!tripH) { el.textContent = ''; return; }
+  const divisor = tripH > 10 ? 200 : 144;
+  const label   = tripH > 10 ? '> 10h → lön ÷ 200/h' : '≤ 10h → lön ÷ 144/h';
+  el.textContent = label + (monthlySalary ? ` = ${fmtKr(monthlySalary / divisor)}/h` : '');
+}
+
+function saveEdit() {
+  if (!editingId) return;
+  const idx = entries.findIndex(x => x.id === editingId);
+  if (idx === -1) return;
+
+  const date = document.getElementById('editDate').value;
+  if (!date) { toast('Välj ett datum!'); return; }
+
+  let hours = 0, timeStr = '';
+  if (editMode === 'klockslag') {
+    const from = document.getElementById('editFrom').value;
+    const to   = document.getElementById('editTo').value;
+    if (!from || !to) { toast('Ange klockslag!'); return; }
+    hours = timeDiffH(from, to);
+    if (hours <= 0) { toast('Sluttid måste vara efter starttid!'); return; }
+    timeStr = from + '–' + to;
+  } else {
+    hours = parseFloat(document.getElementById('editHours').value);
+    if (!hours || hours <= 0) { toast('Ange antal timmar!'); return; }
+    timeStr = fmtH(hours);
+  }
+
+  const tripHours = editCat === 'resa' ? (parseFloat(document.getElementById('editTripHours').value) || 0) : 0;
+
+  entries[idx] = {
+    ...entries[idx],
+    date, hours, timeStr,
+    note: document.getElementById('editNote').value.trim(),
+    cat: editCat,
+    tripHours
+  };
+  entries.sort((a,b) => a.date.localeCompare(b.date));
+  save();
+  const d = new Date(date + 'T12:00:00');
+  viewMonth = d.getMonth(); viewYear = d.getFullYear();
+  updateAll();
+  closeEditModal();
+  toast('✓ Sparad!');
+}
+
+
+// ===== BACKUP & RESTORE =====
+function openBackupModal() {
+  document.getElementById('exportArea').value = '';
+  document.getElementById('importArea').value = '';
+  document.getElementById('backupModal').classList.add('open');
+}
+function closeBackupModal(e) {
+  if (!e || e.target === document.getElementById('backupModal')) {
+    document.getElementById('backupModal').classList.remove('open');
+  }
+}
+function doExport() {
+  const data = { entries, flexDone, monthlySalary, exported: new Date().toISOString() };
+  document.getElementById('exportArea').value = JSON.stringify(data);
+  toast('✓ Data exporterad!');
+}
+function copyExport() {
+  const val = document.getElementById('exportArea').value;
+  if (!val) { doExport(); return; }
+  navigator.clipboard?.writeText(val).then(()=>toast('✓ Kopierad!')).catch(()=>{
+    document.getElementById('exportArea').select();
+    document.execCommand('copy');
+    toast('✓ Kopierad!');
+  });
+}
+function doImport() {
+  const raw = document.getElementById('importArea').value.trim();
+  if (!raw) { toast('Klistra in backup-text först!'); return; }
+  try {
+    const data = JSON.parse(raw);
+    if (!Array.isArray(data.entries)) throw new Error();
+    if (!confirm(`Återställ ${data.entries.length} poster? Din nuvarande data ersätts.`)) return;
+    entries = data.entries;
+    flexDone = data.flexDone || {};
+    if (data.monthlySalary) monthlySalary = data.monthlySalary;
+    save();
+    updateAll();
+    closeBackupModal();
+    toast('✓ Data återställd!');
+  } catch(err) {
+    toast('⚠ Ogiltig backup-text');
+  }
+}
+
+
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
