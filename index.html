@@ -408,6 +408,9 @@ select option { background: #1a1e28; }
 /* EDIT MODAL */
 .edit-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
 .edit-field label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
+
+/* TOAST */
+.toast {
   position: fixed;
   top: calc(env(safe-area-inset-top, 44px) + 58px);
   left: 50%; transform: translateX(-50%) translateY(-16px);
@@ -772,7 +775,9 @@ function resaTaxa(totalTripHours) {
 function timeDiffH(from, to) {
   const [fh,fm] = from.split(':').map(Number);
   const [th,tm] = to.split(':').map(Number);
-  return ((th*60+tm) - (fh*60+fm)) / 60;
+  let diff = ((th*60+tm) - (fh*60+fm)) / 60;
+  if (diff <= 0) diff += 24; // overnight — add 24h
+  return diff;
 }
 
 function getCat(id) { return CATEGORIES.find(c=>c.id===id) || CATEGORIES[0]; }
@@ -795,8 +800,28 @@ function updateTimePreview() {
   const from = document.getElementById('timeFrom').value;
   const to   = document.getElementById('timeTo').value;
   if (!from||!to) return;
-  const h = timeDiffH(from, to);
-  document.getElementById('timePreview').textContent = h>0 ? '= '+fmtH(h) : '⚠ Kontrollera tider';
+  const [fh,fm] = from.split(':').map(Number);
+  const [th,tm] = to.split(':').map(Number);
+  const rawDiff = ((th*60+tm) - (fh*60+fm)) / 60;
+  const overnight = rawDiff <= 0;
+  const h = overnight ? rawDiff + 24 : rawDiff;
+  document.getElementById('timePreview').textContent = h > 0
+    ? '= ' + fmtH(h) + (overnight ? ' (nästa dag)' : '')
+    : '⚠ Kontrollera tider';
+}
+
+function updateEditTimePreview() {
+  const from = document.getElementById('editFrom').value;
+  const to   = document.getElementById('editTo').value;
+  if (!from || !to) return;
+  const [fh,fm] = from.split(':').map(Number);
+  const [th,tm] = to.split(':').map(Number);
+  const rawDiff = ((th*60+tm) - (fh*60+fm)) / 60;
+  const overnight = rawDiff <= 0;
+  const h = overnight ? rawDiff + 24 : rawDiff;
+  document.getElementById('editTimePreview').textContent = h > 0
+    ? '= ' + fmtH(h) + (overnight ? ' (nästa dag)' : '')
+    : '⚠ Kontrollera tider';
 }
 
 // ===== CATEGORIES =====
@@ -837,7 +862,6 @@ function addEntry() {
     const from=document.getElementById('timeFrom').value, to=document.getElementById('timeTo').value;
     if(!from||!to){toast('Ange klockslag!');return;}
     hours = timeDiffH(from,to);
-    if(hours<=0){toast('Sluttid måste vara efter starttid!');return;}
     timeStr = from+'–'+to;
   } else {
     hours = parseFloat(document.getElementById('inputHours').value);
@@ -1439,8 +1463,14 @@ function updateEditTimePreview() {
   const from = document.getElementById('editFrom').value;
   const to   = document.getElementById('editTo').value;
   if (!from || !to) return;
-  const h = timeDiffH(from, to);
-  document.getElementById('editTimePreview').textContent = h > 0 ? '= ' + fmtH(h) : '⚠ Kontrollera tider';
+  const [fh,fm] = from.split(':').map(Number);
+  const [th,tm] = to.split(':').map(Number);
+  const rawDiff = ((th*60+tm) - (fh*60+fm)) / 60;
+  const overnight = rawDiff <= 0;
+  const h = overnight ? rawDiff + 24 : rawDiff;
+  document.getElementById('editTimePreview').textContent = h > 0
+    ? '= ' + fmtH(h) + (overnight ? ' (nästa dag)' : '')
+    : '⚠ Kontrollera tider';
 }
 
 function buildEditCatGrid() {
@@ -1484,7 +1514,6 @@ function saveEdit() {
     const to   = document.getElementById('editTo').value;
     if (!from || !to) { toast('Ange klockslag!'); return; }
     hours = timeDiffH(from, to);
-    if (hours <= 0) { toast('Sluttid måste vara efter starttid!'); return; }
     timeStr = from + '–' + to;
   } else {
     hours = parseFloat(document.getElementById('editHours').value);
